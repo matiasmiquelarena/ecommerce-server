@@ -1,0 +1,21 @@
+{
+  "name": "ecommerce-server",
+  "version": "1.0.0",
+  "description": "Entrega 1 - API de productos y carritos",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "keywords": [],
+  "author": "Matías",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
+

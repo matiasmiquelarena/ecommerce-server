@@ -1,0 +1,15 @@
+[
+  {
+    "id": "46ca363b-b4a8-4968-b60f-4ee1af2ca7d5",
+    "title": "Nike Air Demo 2",
+    "description": "Zapatillas de prueba 2",
+    "code": "NIKE-002",
+    "price": 130,
+    "status": true,
+    "stock": 10,
+    "category": "zapatillas",
+    "thumbnails": [
+      "/images/nike2.jpg"
+    ]
+  }
+]
