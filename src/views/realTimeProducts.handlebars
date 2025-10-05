@@ -1,0 +1,76 @@
+<h1>Productos en tiempo real</h1>
+
+<ul id="product-list">
+  {{#each products}}
+    <li data-id="{{this.id}}">
+      <strong>{{this.title}}</strong> — ${{this.price}}  
+      <br>
+      <small>{{this.description || ''}}</small>
+      <button class="delete-btn">Eliminar</button>
+      <hr>
+    </li>
+  {{/each}}
+</ul>
+
+<h2>Agregar producto</h2>
+<form id="productForm">
+  <input type="text" id="title" placeholder="Título" required>
+  <input type="text" id="description" placeholder="Descripción" required>
+  <input type="text" id="code" placeholder="Código" required>
+  <input type="text" id="category" placeholder="Categoría" required>
+  <input type="number" id="price" placeholder="Precio" required min="0">
+  <input type="number" id="stock" placeholder="Stock" required min="0">
+  <button type="submit">Agregar</button>
+</form>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  // Actualiza la lista de productos
+  function renderProducts(products) {
+    const list = document.getElementById('product-list');
+    list.innerHTML = '';
+    products.forEach(p => {
+      const li = document.createElement('li');
+      li.setAttribute('data-id', p.id);
+      li.innerHTML = `
+        <strong>${p.title}</strong> — $${p.price}<br>
+        <small>${p.description || ''}</small>
+        <button class="delete-btn">Eliminar</button>
+        <hr>
+      `;
+      list.appendChild(li);
+    });
+
+    // Agregar evento a los botones de eliminar
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.parentElement.getAttribute('data-id');
+        socket.emit('deleteProduct', id);
+      });
+    });
+  }
+
+  socket.on('updateProducts', renderProducts);
+
+  // Envío del nuevo producto
+  const form = document.getElementById('productForm');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const newProduct = {
+      title: document.getElementById('title').value,
+      description: document.getElementById('description').value,
+      code: document.getElementById('code').value,
+      category: document.getElementById('category').value,
+      price: parseFloat(document.getElementById('price').value) || 0,
+      stock: parseInt(document.getElementById('stock').value) || 0,
+      status: true,
+      thumbnails: []
+    };
+
+    socket.emit('newProduct', newProduct);
+    form.reset();
+  });
+</script>

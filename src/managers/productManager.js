@@ -21,16 +21,21 @@ class ProductManager {
     await fs.writeFile(this.filePath, JSON.stringify(data, null, 2));
   }
 
-  async getAll() {
+  // Obtener todos los productos
+  async getProducts() {
     return await this._readFile();
   }
 
-  async getById(id) {
+  // Obtener producto por ID
+  async getProductById(id) {
     const items = await this._readFile();
-    return items.find(p => String(p.id) === String(id)) || null;
+    const product = items.find(p => String(p.id) === String(id));
+    if (!product) throw new Error('Producto no encontrado');
+    return product;
   }
 
-  async add(productData) {
+  // Agregar producto
+  async addProduct(productData) {
     const items = await this._readFile();
     const newProduct = {
       id: uuidv4(),
@@ -40,7 +45,7 @@ class ProductManager {
       price: Number(productData.price) || 0,
       status: productData.status === undefined ? true : Boolean(productData.status),
       stock: Number(productData.stock) || 0,
-      category: productData.category || '',
+      category: productData.category || 'sin categoría',
       thumbnails: Array.isArray(productData.thumbnails) ? productData.thumbnails : []
     };
     items.push(newProduct);
@@ -48,31 +53,34 @@ class ProductManager {
     return newProduct;
   }
 
-  async update(id, updateData) {
+  // Actualizar producto
+  async updateProduct(id, updateData) {
     const items = await this._readFile();
     const idx = items.findIndex(p => String(p.id) === String(id));
-    if (idx === -1) return null;
-    // No permitir cambiar id
+    if (idx === -1) throw new Error('Producto no encontrado');
+
     const updated = { ...items[idx], ...updateData, id: items[idx].id };
-    // Asegurar types adecuados
+
     if (updateData.price !== undefined) updated.price = Number(updateData.price);
     if (updateData.stock !== undefined) updated.stock = Number(updateData.stock);
     if (updateData.status !== undefined) updated.status = Boolean(updateData.status);
     if (updateData.thumbnails !== undefined && !Array.isArray(updateData.thumbnails)) {
-      // ignorar o convertir
       updated.thumbnails = items[idx].thumbnails;
     }
+
     items[idx] = updated;
     await this._writeFile(items);
     return updated;
   }
 
-  async delete(id) {
+  // Eliminar producto
+  async deleteProduct(id) {
     const items = await this._readFile();
-    const newItems = items.filter(p => String(p.id) !== String(id));
-    if (newItems.length === items.length) return false;
-    await this._writeFile(newItems);
-    return true;
+    const filtered = items.filter(p => String(p.id) !== String(id));
+    if (filtered.length === items.length) throw new Error('Producto no encontrado');
+
+    await this._writeFile(filtered);
+    return { message: 'Producto eliminado' };
   }
 }
 
