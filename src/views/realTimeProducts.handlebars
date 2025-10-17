@@ -5,7 +5,7 @@
     <li data-id="{{this.id}}">
       <strong>{{this.title}}</strong> — ${{this.price}}  
       <br>
-      <small>{{this.description || ''}}</small>
+      <small>{{this.description}}</small>
       <button class="delete-btn">Eliminar</button>
       <hr>
     </li>
@@ -23,7 +23,6 @@
   <button type="submit">Agregar</button>
 </form>
 
-<script src="/socket.io/socket.io.js"></script>
 <script>
   const socket = io();
 
@@ -43,7 +42,7 @@
       list.appendChild(li);
     });
 
-    // Agregar evento a los botones de eliminar
+    // Evento para eliminar productos
     document.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.parentElement.getAttribute('data-id');
@@ -54,7 +53,7 @@
 
   socket.on('updateProducts', renderProducts);
 
-  // Envío del nuevo producto
+  // Envío de nuevo producto
   const form = document.getElementById('productForm');
   form.addEventListener('submit', (e) => {
     e.preventDefault();

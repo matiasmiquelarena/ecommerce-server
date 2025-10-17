@@ -23,8 +23,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// Configuración de Handlebars
-app.engine("handlebars", handlebars.engine());
+// Configuración de Handlebars con layout
+app.engine(
+  "handlebars",
+  handlebars.engine({
+    defaultLayout: "main",
+    layoutsDir: path.join(__dirname, "views", "layouts"),
+  })
+);
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "handlebars");
 
@@ -35,19 +41,25 @@ app.use("/api/carts", cartsRouter);
 // Rutas de vistas
 app.use("/", viewsRouter);
 
+// Ruta directa para realTimeProducts
+app.get("/realtimeproducts", async (req, res) => {
+  const products = await productManager.getAll();
+  res.render("realTimeProducts", { products });
+});
+
 // WebSocket
 io.on("connection", (socket) => {
   console.log("🟢 Cliente conectado vía WebSocket");
 
   socket.on("newProduct", async (data) => {
-    await productManager.add(data); // método correcto
-    const updatedProducts = await productManager.getAll(); // método correcto
+    await productManager.add(data);
+    const updatedProducts = await productManager.getAll();
     io.emit("updateProducts", updatedProducts);
   });
 
   socket.on("deleteProduct", async (id) => {
-    await productManager.delete(id); // método correcto
-    const updatedProducts = await productManager.getAll(); // método correcto
+    await productManager.delete(id);
+    const updatedProducts = await productManager.getAll();
     io.emit("updateProducts", updatedProducts);
   });
 
@@ -65,4 +77,3 @@ app.use((req, res) => {
 httpServer.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
-
